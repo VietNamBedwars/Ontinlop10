@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Thi Gi?a K? 2 - Tin H?c 10 (Python)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .smooth-transition { transition: all 0.3s ease; }
+        pre { background-color: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.75rem 0; font-family: 'Courier New', Courier, monospace; }
+        .sticky-nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // D? li?u 40 câu h?i
+        const questions = [
+            // --- 25 CÂU H?C THU?C (Lý thuy?t, cú pháp) ---
+            {
+                id: 1, type: 'Lý thuy?t', lesson: 'Bài 18',
+                question: 'L?nh nào sau dây dùng d? dua d? li?u (in) ra màn hình trong Python?',
+                options: ['input()', 'print()', 'write()', 'output()'],
+                correct: 1,
+                hint: 'Trick: "print" trong ti?ng Anh có nghia là "in ?n". Hãy nh? t?i vi?c máy in xu?t gi?y ra ngoài.'
+            },
+            {
+                id: 2, type: 'Lý thuy?t', lesson: 'Bài 18',
+                question: 'Hàm nào du?c s? d?ng d? nh?n d? li?u nh?p vào t? bàn phím?',
+                options: ['get()', 'read()', 'input()', 'scan()'],
+                correct: 2,
+                hint: 'M?o: "in" là vào, "put" là d?t. "input" dùng d? dua d? li?u vào chuong trình.'
+            },
+            {
+                id: 3, type: 'Lý thuy?t', lesson: 'Bài 18',
+                question: 'Ki?u d? li?u m?c d?nh mà hàm input() tr? v? luôn là gì?',
+                options: ['S? nguyên (int)', 'S? th?c (float)', 'Chu?i ký t? (str)', 'Ki?u logic (bool)'],
+                correct: 2,
+                hint: 'Luu ý "ch?t ngu?i": Dù b?n nh?p s? 5, Python v?n hi?u nó là ch? "5". C?n ph?i ép ki?u (int, float) n?u mu?n tính toán.'
+            },
+            {
+                id: 4, type: 'Lý thuy?t', lesson: 'Bài 18',
+                question: 'L?nh nào ép ki?u d? li?u chu?i sang s? nguyên?',
+                options: ['int()', 'float()', 'str()', 'bool()'],
+                correct: 0,
+                hint: 'Trick: S? nguyên trong ti?ng Anh là "Integer", vi?t t?t là "int".'
+            },
+            {
+                id: 5, type: 'Lý thuy?t', lesson: 'Bài 18',
+                question: 'Trong Python, l?nh gán có cú pháp nhu th? nào?',
+                options: ['<Giá tr?> = <Bi?n>', '<Bi?n> = <Giá tr?>', '<Bi?n> == <Giá tr?>', '<Bi?n> := <Giá tr?>'],
+                correct: 1,
+                hint: 'Quy t?c: Luôn ghi tên bi?n ? bên trái, giá tr? mu?n gán ? bên ph?i d?u b?ng (=).'
+            },
+            {
+                id: 6, type: 'Lý thuy?t', lesson: 'Bài 19',
+                question: 'Cú pháp dúng c?a câu l?nh r? nhánh d?ng thi?u trong Python là:',
+                options: ['if <di?u ki?n> then <câu l?nh>', 'if <di?u ki?n>: <câu l?nh>', 'if <di?u ki?n> { <câu l?nh> }', 'if (<di?u ki?n>) <câu l?nh>'],
+                correct: 1,
+                hint: 'M?o cú pháp: Python KHÔNG dùng d?u ngo?c nh?n {} hay ch? "then". Luôn nh? d?u hai ch?m (:) ? cu?i di?u ki?n.'
+            },
+            {
+                id: 7, type: 'Lý thuy?t', lesson: 'Bài 19',
+                question: 'Phép so sánh "b?ng nhau" trong Python s? d?ng ký hi?u nào?',
+                options: ['=', '==', '===', '!='],
+                correct: 1,
+                hint: 'Tránh nh?m l?n: D?u "=" là l?nh gán (cho giá tr?). D?u "==" m?i là so sánh xem 2 bên có b?ng nhau không.'
+            },
+            {
+                id: 8, type: 'Lý thuy?t', lesson: 'Bài 19',
+                question: 'Phép so sánh "khác nhau" trong Python s? d?ng ký hi?u nào?',
+                options: ['<>', '><', '!=', 'not='],
+                correct: 2,
+                hint: 'M?o: D?u ch?m than (!) thu?ng tu?ng trung cho s? ph? d?nh (NOT). Nên "!=" nghia là KHÔNG B?NG (khác).'
+            },
+            {
+                id: 9, type: 'Lý thuy?t', lesson: 'Bài 19',
+                question: 'T? khóa nào k?t h?p hai di?u ki?n, yêu c?u C? HAI d?u ph?i dúng?',
+                options: ['or', 'and', 'not', 'both'],
+                correct: 1,
+                hint: 'T? v?ng: "and" là VÀ (c? hai ph?i dúng), "or" là HO?C (m?t trong hai dúng là du?c).'
+            },
+            {
+                id: 10, type: 'Lý thuy?t', lesson: 'Bài 19',
+                question: 'Kh?i l?nh con bên trong if, for, while du?c nh?n bi?t b?ng cách nào trong Python?',
+                options: ['Ð?t trong ngo?c {}', 'Ð?t trong t? khóa begin...end', 'Th?t l? (indentation) d?ng lo?t', 'Ð?t trong ngo?c ()'],
+                correct: 2,
+                hint: 'Ð?c trung c?a Python: Th?t l? (thu?ng là 1 tab ho?c 4 d?u cách) là b?t bu?c d? xác d?nh kh?i l?nh, thay vì dùng ngo?c.'
+            },
+            {
+                id: 11, type: 'Lý thuy?t', lesson: 'Bài 20',
+                question: 'Cú pháp c?a câu l?nh l?p v?i s? l?n bi?t tru?c là?',
+                options: ['for <bi?n> in <vùng giá tr?>:', 'while <di?u ki?n>:', 'loop <bi?n> in <vùng giá tr?>:', 'for <bi?n> = <giá tr? d?u> to <giá tr? cu?i>:'],
+                correct: 0,
+                hint: 'Nh? ngay: "for ... in ... :" là cú pháp chu?n c?a vòng l?p for trong Python.'
+            },
+            {
+                id: 12, type: 'Lý thuy?t', lesson: 'Bài 20',
+                question: 'Hàm range(n) s? sinh ra m?t vùng giá tr? g?m các s? nguyên nào?',
+                options: ['T? 1 d?n n', 'T? 0 d?n n', 'T? 1 d?n n-1', 'T? 0 d?n n-1'],
+                correct: 3,
+                hint: 'Trick c?c quan tr?ng: range luôn b?t d?u t? 0 và k?t thúc TRU?C n (không bao gi? l?y s? n).'
+            },
+            {
+                id: 13, type: 'Lý thuy?t', lesson: 'Bài 20',
+                question: 'Ð? l?p v?i i ch?y t? 2 d?n 5 (bao g?m c? 5), ta dùng hàm range nào?',
+                options: ['range(2, 5)', 'range(2, 6)', 'range(1, 5)', 'range(3, 6)'],
+                correct: 1,
+                hint: 'M?o: Mu?n l?y d?n s? X, thì tham s? th? 2 c?a range ph?i là X + 1. Mu?n l?y d?n 5, ph?i ghi là range(2, 6).'
+            },
+            {
+                id: 14, type: 'Lý thuy?t', lesson: 'Bài 21',
+                question: 'Vòng l?p while s? l?p l?i kh?i l?nh khi nào?',
+                options: ['Khi di?u ki?n là sai (False)', 'V?i m?t s? l?n l?p dã bi?t tru?c', 'Khi di?u ki?n là dúng (True)', 'Ch? l?p 1 l?n duy nh?t'],
+                correct: 2,
+                hint: 'D?ch nghia: "while" nghia là "TRONG KHI". Trong khi di?u ki?n còn dúng, thì v?n ti?p t?c làm.'
+            },
+            {
+                id: 15, type: 'Lý thuy?t', lesson: 'Bài 21',
+                question: 'Hi?n tu?ng l?p vô h?n x?y ra khi nào trong vòng l?p while?',
+                options: ['Ði?u ki?n luôn luôn Sai', 'Ði?u ki?n luôn luôn Ðúng và không b? thay d?i', 'Chuong trình b? l?i cú pháp', 'Không có di?u ki?n'],
+                correct: 1,
+                hint: 'M?o: N?u b?n không có l?nh nào d? làm cho di?u ki?n tr? thành False (ví d? bi?n d?m không tang), vòng l?p s? ch?y mãi mãi.'
+            },
+            {
+                id: 16, type: 'Lý thuy?t', lesson: 'Bài 22',
+                question: 'Ki?u d? li?u danh sách (List) trong Python du?c khai báo b?ng c?p d?u nào?',
+                options: ['( )', '{ }', '[ ]', '< >'],
+                correct: 2,
+                hint: 'Quy u?c: Ngo?c tròn () là Tuple, ngo?c nh?n {} là Set/Dict, còn ngo?c vuông [] là List (Danh sách).'
+            },
+            {
+                id: 17, type: 'Lý thuy?t', lesson: 'Bài 22',
+                question: 'Ch? s? (index) c?a ph?n t? Ð?U TIÊN trong m?t danh sách là bao nhiêu?',
+                options: ['1', '0', '-1', 'Tùy ngu?i dùng d?t'],
+                correct: 1,
+                hint: 'Trong tin h?c, ph?n l?n các ngôn ng? d?m v? trí b?t d?u t? s? KHÔNG (0), không ph?i s? 1.'
+            },
+            {
+                id: 18, type: 'Lý thuy?t', lesson: 'Bài 22',
+                question: 'Ch? s? (index) c?a ph?n t? CU?I CÙNG trong danh sách (khi dùng ch? s? âm) là?',
+                options: ['0', '-1', '-2', '1'],
+                correct: 1,
+                hint: 'Trick siêu hay c?a Python: Ð?m ngu?c t? ph?i sang trái. Ph?n t? cu?i cùng là -1, áp chót là -2.'
+            },
+            {
+                id: 19, type: 'Lý thuy?t', lesson: 'Bài 22',
+                question: 'Hàm nào dùng d? do d? dài (s? lu?ng ph?n t?) c?a m?t danh sách?',
+                options: ['length()', 'size()', 'len()', 'count()'],
+                correct: 2,
+                hint: 'T? v?ng: len là vi?t t?t c?a "length" (chi?u dài). Ch? 3 ch? cái: l-e-n.'
+            },
+            {
+                id: 20, type: 'Lý thuy?t', lesson: 'Bài 23',
+                question: 'Phuong th?c nào dùng d? THÊM m?t ph?n t? vào CU?I danh sách?',
+                options: ['add()', 'insert()', 'append()', 'push()'],
+                correct: 2,
+                hint: 'Trick: "append" trong ti?ng Anh nghia là n?i thêm vào ph?n duôi (cu?i).'
+            },
+            {
+                id: 21, type: 'Lý thuy?t', lesson: 'Bài 23',
+                question: 'Phuong th?c insert(i, x) có ch?c nang gì d?i v?i danh sách?',
+                options: ['Xóa ph?n t? x ? v? trí i', 'Thêm ph?n t? x vào cu?i danh sách', 'Chèn ph?n t? x vào v? trí ch? s? i', 'Thay th? ph?n t? ? v? trí i b?ng x'],
+                correct: 2,
+                hint: '"insert" nghia là "chèn". Nó s? d?y các ph?n t? khác sang ph?i d? nhét x vào v? trí i.'
+            },
+            {
+                id: 22, type: 'Lý thuy?t', lesson: 'Bài 23',
+                question: 'L?nh nào dùng d? XÓA TOÀN B? ph?n t? trong danh sách?',
+                options: ['remove()', 'clear()', 'delete()', 'pop()'],
+                correct: 1,
+                hint: '"clear" nghia là làm s?ch, d?n d?p s?ch s?. Nó quét s?ch list thành list r?ng [].'
+            },
+            {
+                id: 23, type: 'Lý thuy?t', lesson: 'Bài 23',
+                question: 'L?nh "del" du?c dùng d? làm gì v?i danh sách?',
+                options: ['Xóa danh sách ho?c xóa ph?n t? theo ch? s?', 'Ch? xóa ph?n t? cu?i cùng', 'Xóa ph?n t? theo giá tr? c?a nó', 'Không dùng cho danh sách'],
+                correct: 0,
+                hint: 'Cú pháp thu?ng dùng: del A[2] (xóa ph?n t? ? v? trí 2). Ho?c del A (xóa h?n c? danh sách kh?i b? nh?).'
+            },
+            {
+                id: 24, type: 'Lý thuy?t', lesson: 'Bài 23',
+                question: 'Phuong th?c remove(x) ho?t d?ng nhu th? nào?',
+                options: ['Xóa ph?n t? ? v? trí x', 'Xóa T?T C? các ph?n t? có giá tr? x', 'Xóa ph?n t? Ð?U TIÊN có giá tr? b?ng x', 'Thêm ph?n t? x vào danh sách'],
+                correct: 2,
+                hint: 'Luu ý: remove ch? xóa ph?n t? Ð?U TIÊN tìm th?y. N?u có nhi?u s? x, các s? phía sau v?n còn.'
+            },
+            {
+                id: 25, type: 'Lý thuy?t', lesson: 'Bài 23',
+                question: 'Toán t? nào dùng d? ki?m tra xem m?t giá tr? CÓ N?M TRONG danh sách hay không?',
+                options: ['in', 'has', 'contains', 'inside'],
+                correct: 0,
+                hint: 'Ví d?: `if 5 in A:` nghia là "n?u s? 5 CÓ TRONG danh sách A". R?t gi?ng van nói ti?ng Anh!'
+            },
+
+            // --- 10 CÂU TU DUY (Ð?c hi?u code, d? doán k?t qu?) ---
+            {
+                id: 26, type: 'Tu duy', lesson: 'Bài 18',
+                question: 'K?t qu? c?a do?n l?nh sau là gì?\nprint("Python" + "10")',
+                options: ['L?i chuong trình', 'Python 10', 'Python10', '10Python'],
+                correct: 2,
+                hint: 'Tu duy: Phép c?ng (+) gi?a hai chu?i s? n?i chúng l?i sát nhau mà KHÔNG t? thêm d?u cách.',
+                code: true
+            },
+            {
+                id: 27, type: 'Tu duy', lesson: 'Bài 19',
+                question: 'Ðo?n mã sau in ra k?t qu? gì?\nx = 5\nif x % 2 == 0:\n    print("Chan")\nelse:\n    print("Le")',
+                options: ['Chan', 'Le', '5', 'L?i'],
+                correct: 1,
+                hint: 'Phân tích: % là phép chia l?y ph?n du. 5 % 2 du 1. Ði?u ki?n 1 == 0 là Sai, nên l?t vào nhánh else (L?).',
+                code: true
+            },
+            {
+                id: 28, type: 'Tu duy', lesson: 'Bài 19',
+                question: 'Ðo?n mã sau in ra gì?\na = 10\nb = 15\nif a > 5 and b < 20:\n    print("Yes")\nelse:\n    print("No")',
+                options: ['Yes', 'No', 'Yes No', 'Không in gì'],
+                correct: 0,
+                hint: 'Ki?m tra: 10 > 5 (Ðúng). 15 < 20 (Ðúng). Ðúng AND Ðúng => Ðúng. K?t qu? là Yes.',
+                code: true
+            },
+            {
+                id: 29, type: 'Tu duy', lesson: 'Bài 20',
+                question: 'Ðo?n mã sau in ra k?t qu? nào?\nfor i in range(3):\n    print(i, end="")',
+                options: ['123', '012', '0 1 2', '3'],
+                correct: 1,
+                hint: 'Trick: range(3) ch?y các s? 0, 1, 2. Thông s? end="" giúp in trên cùng 1 dòng và không có kho?ng tr?ng.',
+                code: true
+            },
+            {
+                id: 30, type: 'Tu duy', lesson: 'Bài 21',
+                question: 'K?t qu? c?a do?n mã sau là gì?\nx = 0\nwhile x < 3:\n    x = x + 1\nprint(x)',
+                options: ['0', '1', '2', '3'],
+                correct: 3,
+                hint: 'Phân tích: Vòng l?p d?ng khi x = 3 (vì 3 < 3 là Sai). Khi dó nó thoát ra và in x, nên in ra s? 3.',
+                code: true
+            },
+            {
+                id: 31, type: 'Tu duy', lesson: 'Bài 22',
+                question: 'Cho A = [10, 20, 30, 40]. L?nh print(A[2]) in ra giá tr? nào?',
+                options: ['10', '20', '30', '40'],
+                correct: 2,
+                hint: 'Ð?m ch? s?: A[0]=10, A[1]=20, A[2]=30. Ð?ng quên b?t d?u t? 0 nhé!',
+                code: true
+            },
+            {
+                id: 32, type: 'Tu duy', lesson: 'Bài 22',
+                question: 'Cho A = [5, 10, 15]. Sau l?nh A[1] = 99, danh sách A tr? thành:',
+                options: ['[99, 10, 15]', '[5, 99, 15]', '[5, 10, 99]', 'L?i'],
+                correct: 1,
+                hint: 'Tu duy: A[1] là ph?n t? th? HAI trong danh sách. Giá tr? 10 b? ghi dè thành 99.',
+                code: true
+            },
+            {
+                id: 33, type: 'Tu duy', lesson: 'Bài 23',
+                question: 'Cho A = [1, 2]. K?t qu? c?a l?nh print(A + [3, 4]) là?',
+                options: ['[4, 6]', '[1, 2, 3, 4]', 'L?i', '[1, 2, [3, 4]]'],
+                correct: 1,
+                hint: 'Trick: Phép c?ng (+) gi?a 2 danh sách trong Python s? th?c hi?n vi?c N?I hai danh sách l?i thành m?t.',
+                code: true
+            },
+            {
+                id: 34, type: 'Tu duy', lesson: 'Bài 23',
+                question: 'Ðo?n mã sau in ra gì?\nA = [1, 2, 3]\nA.append(4)\nA.pop()\nprint(A)',
+                options: ['[1, 2, 3]', '[1, 2, 3, 4]', '[2, 3, 4]', '[1, 2]'],
+                correct: 0,
+                hint: 'Phân tích: append(4) thêm 4 vào cu?i -> [1,2,3,4]. pop() xóa ph?n t? cu?i cùng (v?a thêm) -> quay l?i [1,2,3].',
+                code: true
+            },
+            {
+                id: 35, type: 'Tu duy', lesson: 'Bài 23',
+                question: 'Cho A = [7, 8, 9]. K?t qu? c?a hàm len(A) là bao nhiêu?',
+                options: ['2', '3', '7', '9'],
+                correct: 1,
+                hint: 'Ð?ng nh?m l?n index và len! Index ch?y t? 0 d?n 2. Nhung s? lu?ng ph?n t? (len) thì d?m bình thu?ng: 1, 2, 3 ph?n t?.',
+                code: true
+            },
+
+            // --- 5 CÂU BÀI TOÁN TU DUY (Thu?t toán) ---
+            {
+                id: 36, type: 'Bài toán', lesson: 'Bài 20',
+                question: 'Ðo?n chuong trình sau dùng d? làm bài toán gì?\ns = 0\nfor i in range(1, 6):\n    s = s + i\nprint(s)',
+                options: ['Ð?m s? ph?n t? t? 1 d?n 5', 'Tính t?ng các s? t? 1 d?n 5', 'Tính t?ng các s? t? 1 d?n 6', 'Tìm s? l?n nh?t'],
+                correct: 1,
+                hint: 'Nh?n d?ng: Bi?n s kh?i t?o b?ng 0, c?ng d?n s = s + i. range(1, 6) sinh ra 1, 2, 3, 4, 5. V?y dây là tính t?ng t? 1 d?n 5.',
+                code: true
+            },
+            {
+                id: 37, type: 'Bài toán', lesson: 'Bài 20 & 22',
+                question: 'Ðo?n code sau th?c hi?n ch?c nang gì trên danh sách a?\nm = a[0]\nfor x in a:\n    if x > m:\n        m = x',
+                options: ['S?p x?p danh sách', 'Tìm giá tr? nh? nh?t trong a', 'Tìm giá tr? l?n nh?t trong a', 'Tính t?ng các ph?n t? trong a'],
+                correct: 2,
+                hint: 'Trick thu?t toán: Gán m b?ng ph?n t? d?u, duy?t qua m?ng. N?u th?y ai l?n hon m (x > m) thì c?p nh?t m b?ng ngu?i dó. Suy ra: tìm Max (l?n nh?t).',
+                code: true
+            },
+            {
+                id: 38, type: 'Bài toán', lesson: 'Bài 20',
+                question: 'Ðo?n code sau in ra k?t qu? gì n?u a = [2, 5, 8, 9, 10]?\nc = 0\nfor x in a:\n    if x % 2 == 0:\n        c = c + 1\nprint(c)',
+                options: ['20', '3', '2', '5'],
+                correct: 1,
+                hint: 'Phân tích: x % 2 == 0 là ki?m tra s? CH?N. c = c + 1 là bi?n Ð?M. Nghia là d?m xem có bao nhiêu s? ch?n. Trong m?ng có 2, 8, 10 là ch?n -> 3 s?.',
+                code: true
+            },
+            {
+                id: 39, type: 'Bài toán', lesson: 'Bài 23',
+                question: 'Cho bài toán: "Ki?m tra xem s? K có trong danh sách A hay không". Cú pháp nào là t?i uu và chu?n Python nh?t?',
+                options: ['for i in range(len(A)): if A[i] == K...', 'if K in A: print("Có")', 'if A contains K: print("Có")', 'while K == A: ...'],
+                correct: 1,
+                hint: 'S?c m?nh c?a Python: Không c?n dùng vòng l?p for ru?m rà d? tìm ki?m. Toán t? "in" gi?i quy?t m?i th? ch? trong 1 dòng.',
+                code: true
+            },
+            {
+                id: 40, type: 'Bài toán', lesson: 'Bài 21',
+                question: 'Vòng l?p while sau s? l?p bao nhiêu l?n?\ni = 10\nwhile i > 0:\n    i = i - 3',
+                options: ['2 l?n', '3 l?n', '4 l?n', 'Vô h?n l?n'],
+                correct: 2,
+                hint: 'Ch?y th? b?ng tay: L?n 1: i=10 (dúng), i gi?m còn 7. L?n 2: i=7 (dúng), gi?m còn 4. L?n 3: i=4 (dúng), gi?m còn 1. L?n 4: i=1 (dúng), gi?m còn -2. L?n 5: i=-2 (Sai, d?ng). V?y l?p 4 l?n.',
+                code: true
+            }
+        ];
+
+        // Component Icon Bóng dèn (Lucide React thay th? b?ng SVG thô cho an toàn)
+        const LightBulbIcon = () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-500">
+                <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/>
+                <path d="M9 18h6"/>
+                <path d="M10 22h4"/>
+            </svg>
+        );
+
+        const App = () => {
+            const [answers, setAnswers] = useState({});
+            const [showHints, setShowHints] = useState({});
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [score, setScore] = useState(0);
+
+            const handleSelectOption = (qId, optionIndex) => {
+                if(isSubmitted) return;
+                setAnswers(prev => ({ ...prev, [qId]: optionIndex }));
+            };
+
+            const toggleHint = (qId) => {
+                setShowHints(prev => ({ ...prev, [qId]: !prev[qId] }));
+            };
+
+            const handleSubmit = () => {
+                let currentScore = 0;
+                questions.forEach(q => {
+                    if (answers[q.id] === q.correct) {
+                        currentScore++;
+                    }
+                });
+                setScore(currentScore);
+                setIsSubmitted(true);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const getCategoryColor = (type) => {
+                if (type === 'Lý thuy?t') return 'bg-blue-100 text-blue-800';
+                if (type === 'Tu duy') return 'bg-purple-100 text-purple-800';
+                return 'bg-red-100 text-red-800'; // Bài toán
+            }
+
+            return (
+                <div className="min-h-screen pb-20">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm sticky-nav border-b-4 border-blue-500">
+                        <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">Tr?c Nghi?m Python 10</h1>
+                                <p className="text-sm text-gray-500 mt-1">Gi?a K? 2 (Bài 18 - 23) • 40 Câu h?i</p>
+                            </div>
+                            <div className="text-right">
+                                <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-semibold">Ðã làm: {Object.keys(answers).length}/40</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Result Banner */}
+                    {isSubmitted && (
+                        <div className="max-w-4xl mx-auto mt-6 px-4">
+                            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-6 rounded shadow-md">
+                                <h2 className="text-2xl font-bold mb-2">Hoàn thành bài thi!</h2>
+                                <p className="text-lg">Ði?m c?a b?n: <span className="font-bold text-2xl">{score}/40</span> ({(score/40 * 10).toFixed(1)} di?m)</p>
+                                <p className="mt-2 text-sm">
+                                    {score >= 35 ? 'Tuy?t v?i! B?n n?m c?c ch?c ki?n th?c Python.' :
+                                     score >= 25 ? 'Khá t?t! Tuy nhiên hãy xem l?i các ph?n lý thuy?t ho?c tu duy còn sai sót nhé.' :
+                                     'Ð?ng n?n chí! Ð?c k? ph?n g?i ý (bóng dèn) d? hi?u sâu hon b?n ch?t code nhé.'}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Quiz Container */}
+                    <main className="max-w-4xl mx-auto mt-8 px-4 space-y-6">
+                        {questions.map((q, index) => {
+                            const isAnswered = answers[q.id] !== undefined;
+                            const isCorrect = isSubmitted && answers[q.id] === q.correct;
+                            const isWrong = isSubmitted && answers[q.id] !== q.correct;
+
+                            return (
+                                <div key={q.id} className={`bg-white rounded-xl shadow-md overflow-hidden border-2 smooth-transition ${isSubmitted ? (isCorrect ? 'border-green-400' : 'border-red-400') : 'border-transparent hover:border-blue-200'}`}>
+                                    <div className="p-6">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="flex gap-2 items-center">
+                                                <span className="bg-gray-800 text-white text-sm font-bold w-8 h-8 rounded-full flex items-center justify-center">
+                                                    {index + 1}
+                                                </span>
+                                                <span className={`text-xs px-2 py-1 rounded-full font-semibold ${getCategoryColor(q.type)}`}>
+                                                    {q.type} - {q.lesson}
+                                                </span>
+                                            </div>
+                                            
+                                            {/* Nút Bóng dèn */}
+                                            <button 
+                                                onClick={() => toggleHint(q.id)}
+                                                className="flex items-center gap-1 text-sm bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-3 py-1.5 rounded-full border border-yellow-200 transition-colors"
+                                                title="M?o tu duy / Hu?ng d?n"
+                                            >
+                                                <LightBulbIcon /> {showHints[q.id] ? 'Ðóng' : 'G?i ý'}
+                                            </button>
+                                        </div>
+
+                                        <div className="mb-4 text-gray-800 font-medium text-lg whitespace-pre-wrap">
+                                            {q.code ? q.question.split('\n')[0] : q.question}
+                                        </div>
+
+                                        {q.code && (
+                                            <pre className="text-sm mb-4"><code>{q.question.substring(q.question.indexOf('\n') + 1)}</code></pre>
+                                        )}
+
+                                        {/* G?i ý b?t lên */}
+                                        {showHints[q.id] && (
+                                            <div className="mb-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-3 rounded-r text-sm font-medium animate-fade-in">
+                                                {q.hint}
+                                            </div>
+                                        )}
+
+                                        <div className="space-y-2">
+                                            {q.options.map((option, optIdx) => {
+                                                const isSelected = answers[q.id] === optIdx;
+                                                
+                                                let optionClass = "w-full text-left px-4 py-3 rounded-lg border-2 transition-colors duration-200 cursor-pointer text-gray-700 ";
+                                                
+                                                if (isSubmitted) {
+                                                    if (optIdx === q.correct) {
+                                                        optionClass += "bg-green-100 border-green-500 font-bold"; // Ðáp án dúng
+                                                    } else if (isSelected && optIdx !== q.correct) {
+                                                        optionClass += "bg-red-100 border-red-500"; // Ðáp án sai mà user ch?n
+                                                    } else {
+                                                        optionClass += "border-gray-200 opacity-50"; // Các dáp án khác
+                                                    }
+                                                } else {
+                                                    if (isSelected) {
+                                                        optionClass += "bg-blue-50 border-blue-500 font-medium";
+                                                    } else {
+                                                        optionClass += "bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300";
+                                                    }
+                                                }
+
+                                                return (
+                                                    <button 
+                                                        key={optIdx} 
+                                                        onClick={() => handleSelectOption(q.id, optIdx)}
+                                                        disabled={isSubmitted}
+                                                        className={optionClass}
+                                                    >
+                                                        <span className="inline-block w-6 font-bold text-gray-500 mr-2">
+                                                            {String.fromCharCode(65 + optIdx)}.
+                                                        </span>
+                                                        {option}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        {/* Submit Button */}
+                        <div className="pt-6 pb-12 flex justify-center">
+                            {!isSubmitted ? (
+                                <button 
+                                    onClick={handleSubmit}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-12 rounded-full shadow-lg text-lg transform transition hover:-translate-y-1"
+                                >
+                                    N?p Bài L?y Ði?m
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={() => window.location.reload()}
+                                    className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-12 rounded-full shadow-lg text-lg"
+                                >
+                                    Làm L?i T? Ð?u
+                                </button>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
